@@ -1,30 +1,23 @@
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
-import javafx.stage.FileChooser;
-
+import javafx.scene.control.*;
 import java.io.*;
 import java.net.Socket;
 import java.net.URL;
-import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutionException;
 
 public class Controller implements Initializable {
 
     public ListView<String> listView;
+    public ListView<String> listFiles;
     public TextField text;
     public Button send;
     private Socket socket;
     private static DataInputStream is;
     private static DataOutputStream os;
-    private String clientPath = "client/ClientStorage";
+    private String clientPath = "client/ClientStorage/";
 
     public static void stop() {
         try {
@@ -46,11 +39,25 @@ public class Controller implements Initializable {
         text.clear();
     }
 
+    public void sendFile(ActionEvent actionEvent) throws IOException {
+        os.writeUTF("sendFiles#" + text.getText ());
+        is = new DataInputStream (new FileInputStream(clientPath + text.getText ()));
+        os = new DataOutputStream (socket.getOutputStream());
+        byte[] byteArray = new byte[8192];
+        int i;
+        while ((i = is.read(byteArray)) != -1){
+            os.write(byteArray,0,i);
+        }
+        os.flush ();
+        is = new DataInputStream(socket.getInputStream());
+        text.clear ();
+    }
+
     public void initialize(URL location, ResourceBundle resources) {
         text.setOnAction(this::sendMessage);
         File dir = new File(clientPath);
         for (File file : Objects.requireNonNull (dir.listFiles ())) {
-            listView.getItems().add(file.getName() + "        |       " + file.length() + " bytes");
+            listFiles.getItems().add(file.getName());
         }
         try {
             socket = new Socket("localhost", 8189);
@@ -59,13 +66,17 @@ public class Controller implements Initializable {
             new Thread(() -> {
                 while (true) {
                     try {
-                        String message = is.readUTF();
-                        if (message.equals("quit")) {
+                        listFiles.getSelectionModel().selectedItemProperty().addListener(
+                                (observable, oldValue, newValue) ->
+                                        text.setText(newValue));
+                        String message = is.readUTF ();
+                        if (message.equals ("quit")) {
                             break;
                         }
-                        Platform.runLater(() -> listView.getItems().add(message));
+                        Platform.runLater (() -> listView.getItems ().add (message));
+                    } catch (EOFException e) {
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        e.printStackTrace ();
                     }
                 }
             }).start();
