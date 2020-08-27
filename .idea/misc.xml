@@ -12,7 +12,8 @@
     </option>
   </component>
   <component name="ProjectPlainTextFileTypeManager">
-    <file url="file://$PROJECT_DIR$/common/src/main/resources/test_2.txt" />
+    <file url="file://$PROJECT_DIR$/client/ClientStorage/test_2.txt" />
+    <file url="file://$PROJECT_DIR$/server/Out/test_2.txt" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />

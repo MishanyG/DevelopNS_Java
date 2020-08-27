@@ -35,8 +35,8 @@ public class FileReadWrite {
 
 
     public static void main(String[] args) throws IOException {
-        File file = new File("common/src/main/resources/test_1.txt");
-        File to = new File("common/src/main/resources/test_out.txt");
+        File file = new File("common/src/main/resources/input.txt");
+        File to = new File("common/src/main/resources/input1.txt");
         if (!to.exists()) to.createNewFile();
         copyFrom(file, to);
     }
